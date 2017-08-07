@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2014 Josh Blum
+// Copyright (c) 2014-2017 Josh Blum
 // SPDX-License-Identifier: BSL-1.0
 
 #include <Pothos/Testing.hpp>
@@ -6,6 +6,9 @@
 #include <Pothos/Proxy.hpp>
 #include <Poco/JSON/Object.h>
 #include <iostream>
+
+#include <json.hpp>
+using json = nlohmann::json;
 
 static const char *KERNEL_SOURCE =
 "__kernel void add_2x_float32(\n"
@@ -164,14 +167,14 @@ POTHOS_TEST_BLOCK("/opencl/tests", test_opencl_kernel_middle_man)
     openClKernel1.callVoid("setProductionFactor", 1.0);
 
     //create test plan
-    Poco::JSON::Object::Ptr testPlan(new Poco::JSON::Object());
-    testPlan->set("enableBuffers", true);
+    json testPlan;
+    testPlan["enableBuffers"] = true;
     //large and numerous payloads
-    testPlan->set("minTrials", 100);
-    testPlan->set("maxTrials", 200);
-    testPlan->set("minSize", 1024);
-    testPlan->set("maxSize", 1024);
-    auto expected = feeder.callProxy("feedTestPlan", testPlan);
+    testPlan["minTrials"] = 100;
+    testPlan["maxTrials"] = 200;
+    testPlan["minSize"] = 1024;
+    testPlan["maxSize"] = 1024;
+    auto expected = feeder.callProxy("feedTestPlan", testPlan.dump());
 
     //create tester topology
     std::cout << "Make topology" << std::endl;

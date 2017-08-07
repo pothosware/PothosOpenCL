@@ -1,5 +1,11 @@
 This this the changelog file for the Pothos OpenCL toolkit.
 
+Release 0.3.0 (pending)
+==========================
+
+- Require Pothos version 0.6 for test plan JSON format change
+- Alternative JSON C++ library to handle JSON parsing/emitting
+
 Release 0.2.0 (2015-06-17)
 ==========================
 
