@@ -22,7 +22,7 @@ message(STATUS "OPENCL_LIBRARIES: ${OPENCL_LIBRARIES}")
 find_path(JSON_HPP_INCLUDE_DIR NAMES json.hpp PATH_SUFFIXES nlohmann)
 
 if (NOT JSON_HPP_INCLUDE_DIR)
-    message(WARNING "Pothos Blocks toolkit requires json.hpp, skipping...")
+    message(WARNING "Pothos OpenCL toolkit requires json.hpp, skipping...")
 endif (NOT JSON_HPP_INCLUDE_DIR)
 
 ########################################################################
