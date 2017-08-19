@@ -9,6 +9,10 @@ The block uses the Pothos DMA API to integrate OpenCL allocated buffers with the
 In addition, this component provides a device info plugin so the PothosGui
 and others can query information about OpenCl on a particular system.
 
+## Documentation
+
+* https://github.com/pothosware/PothosOpenCL/wiki
+
 ## Dependencies
 
 * Pothos library
