@@ -48,6 +48,7 @@ set(SOURCES
     OpenClContextCache.cpp
     OpenClKernel.cpp
     OpenClBufferManager.cpp
+    OpenClConfLoader.cpp
     TestOpenClBlocks.cpp
 )
 
