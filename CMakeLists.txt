@@ -51,10 +51,13 @@ set(SOURCES
     OpenClConfLoader.cpp
     TestOpenClBlocks.cpp
 )
+set(DOC_SOURCES OpenClKernel.cpp)
 
 POTHOS_MODULE_UTIL(
     TARGET OpenClBlocks
     SOURCES ${SOURCES}
+    ENABLE_DOCS ON
+    DOC_SOURCES ${DOC_SOURCES}
     LIBRARIES ${OPENCL_LIBRARIES}
     DESTINATION blocks/opencl
     ENABLE_DOCS
