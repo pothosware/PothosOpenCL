@@ -67,37 +67,35 @@ static std::string generateBlockDescription(
     const std::string& factory)
 {
     static const std::string FORMAT =
-        "/***********************************************************************"
+        "/***********************************************************************\n"
         " * |PothosDoc %s \n"
-        " * \n"
         " * %s\n"
-        " * \n"
-        " * %s"
-        " * %s"
-        " * \n"
+        "%s"
+        "%s"
+        " *\n"
         " * |param deviceId[Device ID] A markup to specify OpenCL platform and device. \n"
         " * The markup takes the format [platform index]:[device index] \n"
         " * The platform index represents a platform ID found in clGetPlatformIDs(). \n"
         " * The device index represents a device ID found in clGetDeviceIDs(). \n"
         " * |default \"0:0\" \n"
-        " * \n"
+        " *\n"
         " * |param localSize[Local Size] The number of work units/resources to allocate. \n"
         " * This controls the parallelism of the kernel execution. \n"
         " * |default 2 \n"
-        " * \n"
+        " *\n"
         " * |param globalFactor[Global Factor] This factor controls the global size. \n"
         " * The global size is the number of kernel iterarions per call. \n"
         " * Global size = number of input elements * global factor. \n"
         " * |default 1.0 \n"
-        " * \n"
+        " *\n"
         " * |param productionFactor[Production Factor] This factor controls the elements produced. \n"
         " * For each call to work, elements produced = number of input elements * production factor. \n"
         " * |default 1.0 \n"
-        " * \n"
+        " *\n"
         " * |factory %s(deviceId) \n"
         " * |setter setLocalSize(localSize) \n"
         " * |setter setGlobalFactor(globalFactor) \n"
-        " * |setter setProductionFactor(productionFactor)"
+        " * |setter setProductionFactor(productionFactor)\n"
         " **********************************************************************/";
 
     std::string categoryString;
@@ -160,7 +158,7 @@ static std::vector<Pothos::PluginPath> OpenClConfLoader(const std::map<std::stri
     {
         categories = stringTokenizerToVector(Poco::StringTokenizer(outputTypesIter->second, tokSep, tokOptions));
     }
-    else categories = {Poco::Path(absSource).toString()};
+    else categories = {Poco::Path(absSource).getBaseName()};
 
     std::vector<std::string> keywords;
     auto keywordsIter = config.find("keywords");
@@ -192,9 +190,6 @@ static std::vector<Pothos::PluginPath> OpenClConfLoader(const std::map<std::stri
     stream << blockDescription;
     parser.feedStream(stream);
 
-    Pothos::PluginPath pluginPath = Pothos::PluginPath("/blocks/docs", pluginPath);
-    Pothos::PluginRegistry::add(pluginPath, parser.getJSONObject(factory));
-
     //
     // Register all factory paths, using the parameters from the config file.
     //
@@ -206,10 +201,15 @@ static std::vector<Pothos::PluginPath> OpenClConfLoader(const std::map<std::stri
         outputTypes
     };
 
-    auto blockFactory = Pothos::Callable(&openClBlockFactory).bind(blockArgs, 2);
-    Pothos::PluginRegistry::addCall(pluginPath, blockFactory);
+    auto blockFactory = Pothos::Callable(&openClBlockFactory).bind(blockArgs, 1);
+    Pothos::PluginRegistry::addCall("/blocks"+factory, blockFactory);
+    Pothos::PluginRegistry::add("/blocks/docs"+factory, parser.getJSONObject(factory));
 
-    return {pluginPath};
+    return
+    {
+        "/blocks"+factory,
+        "/blocks/docs"+factory
+    };
 }
 
 //
