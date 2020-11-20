@@ -30,19 +30,29 @@ struct OpenClBlockArgs
     std::vector<std::string> outputTypes;
 };
 
-static Pothos::Proxy openClBlockFactory(
-    const std::string& device,
-    const OpenClBlockArgs& blockArgs)
+static Pothos::Object opaqueOpenClBlockFactory(
+    const std::string& factory,
+    const OpenClBlockArgs& blockArgs,
+    const Pothos::Object* args,
+    const size_t numArgs)
 {
-    auto openClBlock = Pothos::BlockRegistry::make(
-                           "/blocks/opencl_kernel",
-                           device,
-                           blockArgs.inputTypes,
-                           blockArgs.outputTypes);
-    openClBlock.call(
+    auto openClBlockPlugin = Pothos::PluginRegistry::get("/blocks/blocks/opencl_kernel");
+
+    // The OpenCL kernel block takes in the input and output types, which are provided
+    // by the configuration file, so append those onto the end and pass in the new
+    // list.
+    std::vector<Pothos::Object> argsVector(args, args+numArgs);
+    argsVector.emplace_back(blockArgs.inputTypes);
+    argsVector.emplace_back(blockArgs.outputTypes);
+
+    auto callable = openClBlockPlugin.getObject().extract<Pothos::Callable>();
+    auto openClBlock = callable.opaqueCall(argsVector.data(), argsVector.size());
+
+    openClBlock.ref<Pothos::Block*>()->setName(factory);
+    openClBlock.ref<Pothos::Block*>()->call(
         "setSource",
-        blockArgs.source,
-        blockArgs.kernelName);
+        blockArgs.kernelName,
+        blockArgs.source);
 
     return openClBlock;
 }
@@ -201,7 +211,9 @@ static std::vector<Pothos::PluginPath> OpenClConfLoader(const std::map<std::stri
         outputTypes
     };
 
-    auto blockFactory = Pothos::Callable(&openClBlockFactory).bind(blockArgs, 1);
+    auto blockFactory = Pothos::Callable(&opaqueOpenClBlockFactory)
+                            .bind(factory, 0)
+                            .bind(blockArgs, 1);
     Pothos::PluginRegistry::addCall("/blocks"+factory, blockFactory);
     Pothos::PluginRegistry::add("/blocks/docs"+factory, parser.getJSONObject(factory));
 
